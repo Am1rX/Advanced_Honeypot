@@ -4,7 +4,6 @@
 
 **A multi-protocol Python honeypot that detects, fingerprints, and logs attackers in real time** — credential capture, a *stateful* fake shell, malware capture, passive OS/tool fingerprinting, SQLite persistence, and native SIEM integration via Syslog/CEF.
 
-[![tests](https://github.com/Am1rX/advanced_honeypot/actions/workflows/tests.yml/badge.svg)](https://github.com/Am1rX/advanced_honeypot/actions/workflows/tests.yml)
 [![Python](https://img.shields.io/badge/python-3.8%2B-blue.svg)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Defensive Security](https://img.shields.io/badge/purpose-defensive%20security-orange.svg)](#-disclaimer)
@@ -48,6 +47,24 @@ This tool is intended **strictly for defensive security purposes** — deception
 - **Telegram alerts** for `HIGH`/`CRITICAL` events, rate-limited per IP.
 - **Dual logging** — human-readable text log + structured JSON Lines (`.jsonl`) for ELK/Filebeat.
 - **Automatic log rotation**, **IP whitelisting**, and a **live console dashboard**.
+
+---
+
+## Architecture
+
+```mermaid
+flowchart LR
+    A["Inbound traffic"] --> B["SSH, HTTP, FTP, Telnet<br/>and banner decoys"]
+    A --> C["Optional Scapy<br/>SYN observer"]
+    B --> D["Event, fingerprint,<br/>session and alert processing"]
+    C --> D
+    D --> E["SQLite event store"]
+    D --> F["Text and JSONL logs"]
+    D --> G["Optional Syslog / CEF<br/>and Telegram alerts"]
+    E --> H["Local dashboard<br/>127.0.0.1 by default"]
+```
+
+The dashboard reads stored events; it does not sit in the path of incoming connections. Scapy and outbound alerting are optional modules.
 
 ---
 
@@ -221,7 +238,7 @@ pip install -r requirements-dev.txt
 pytest
 ```
 
-The suite covers the stateful shell, Telnet IAC handling, session locking/bounds, SQLite persistence, the quarantine store, fingerprinting, and CEF formatting — all offline (no network). CI runs them on Python 3.8 / 3.10 / 3.12 via GitHub Actions.
+The suite covers the stateful shell, Telnet IAC handling, session locking/bounds, SQLite persistence, the quarantine store, fingerprinting, and CEF formatting — all offline (no network).
 
 ---
 
@@ -245,7 +262,6 @@ The suite covers the stateful shell, Telnet IAC handling, session locking/bounds
 ├── tests/                          # pytest suite
 ├── requirements.txt                # Runtime deps
 ├── requirements-dev.txt            # + pytest
-├── .github/workflows/tests.yml     # CI
 └── README.md
 ```
 
